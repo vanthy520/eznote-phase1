@@ -2,15 +2,15 @@
 
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Clock, Filter, Globe, Lock, Gem } from "lucide-react"
+import { CalendarDays, Filter, Globe, Lock, Gem } from "lucide-react"
 import { PostCard } from "@/components/post-card"
 import type { Post } from "@/lib/types"
 
-interface TimelineScreenProps {
+interface PlannerScreenProps {
   posts: Post[]
 }
 
-export function TimelineScreen({ posts }: TimelineScreenProps) {
+export function PlannerScreen({ posts }: PlannerScreenProps) {
   const [filter, setFilter] = useState<"all" | "public" | "private" | "nft">("all")
   const [filteredTimelinePosts, setFilteredTimelinePosts] = useState<Post[]>([])
 
@@ -35,8 +35,8 @@ export function TimelineScreen({ posts }: TimelineScreenProps) {
       <div className="sticky top-0 bg-background/95 backdrop-blur-sm border-b border-border z-20 p-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center">
-            <Clock className="h-8 w-8 text-purple-600 mr-2" />
-            <h1 className="text-2xl font-bold">Timeline</h1>
+            <CalendarDays className="h-8 w-8 text-purple-600 mr-2" />
+            <h1 className="text-2xl font-bold">Planner</h1>
           </div>
         </div>
 
@@ -85,7 +85,7 @@ export function TimelineScreen({ posts }: TimelineScreenProps) {
       <div className="p-4 space-y-6">
         {filteredTimelinePosts.length === 0 ? (
           <div className="text-center py-12">
-            <Clock className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <CalendarDays className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
             <h3 className="text-lg font-medium mb-2">No posts found for this filter.</h3>
             <p className="text-muted-foreground">Start creating memories!</p>
           </div>

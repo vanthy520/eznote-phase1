@@ -1,17 +1,17 @@
 "use client"
 
 import { useState } from "react"
-import { Home, Lock, BookOpen, Clock, Settings, Plus } from "lucide-react"
+import { Home, Lock, BookOpen, CalendarDays, Settings, Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { HomeFeedScreen } from "@/components/home-feed-screen"
 import { PrivateRoomScreen } from "@/components/private-room-screen"
 import { NotebooksScreen } from "@/components/notebooks-screen"
-import { TimelineScreen } from "@/components/timeline-screen"
+import { PlannerScreen } from "@/components/planner-screen"
 import { SettingsScreen } from "@/components/settings-screen"
 import { CreatePostModal } from "@/components/create-post-modal"
 import type { Post } from "@/lib/types" // Import Post type
 
-type Tab = "home" | "private" | "notebooks" | "timeline" | "settings"
+type Tab = "home" | "private" | "notebooks" | "planner" | "settings"
 
 export function MainApp() {
   const [activeTab, setActiveTab] = useState<Tab>("home")
@@ -30,8 +30,8 @@ export function MainApp() {
         return <PrivateRoomScreen posts={posts.filter((p) => p.visibility === "private")} /> // Filter private posts
       case "notebooks":
         return <NotebooksScreen />
-      case "timeline":
-        return <TimelineScreen posts={posts} /> // Pass all posts to timeline
+      case "planner":
+        return <PlannerScreen />
       case "settings":
         return <SettingsScreen />
       default:
@@ -84,13 +84,13 @@ export function MainApp() {
             <span className="text-xs">Notebooks</span>
           </Button>
           <Button
-            variant={activeTab === "timeline" ? "default" : "ghost"}
+            variant={activeTab === "planner" ? "default" : "ghost"}
             size="sm"
-            onClick={() => setActiveTab("timeline")}
+            onClick={() => setActiveTab("planner")}
             className="flex flex-col items-center gap-1 h-16 px-3"
           >
-            <Clock className="h-5 w-5" />
-            <span className="text-xs">Timeline</span>
+            <CalendarDays className="h-5 w-5" />
+            <span className="text-xs">Planner</span>
           </Button>
           <Button
             variant={activeTab === "settings" ? "default" : "ghost"}
