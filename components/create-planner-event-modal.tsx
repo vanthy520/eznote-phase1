@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Switch } from "@/components/ui/switch"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
-import { CalendarDays, Gem, Loader2, Repeat } from "lucide-react"
+import { CalendarDays, Gem, Loader2, Repeat, Video, Mic, Bell } from "lucide-react"
 import { useEzCoin } from "@/components/ezcoin-provider"
 import { useToast } from "@/hooks/use-toast"
 import { format } from "date-fns"
@@ -30,6 +30,9 @@ export function CreatePlannerEventModal({ visible, onClose, onEventAdded }: Crea
   const [isRecurring, setIsRecurring] = useState(false)
   const [recurrenceType, setRecurrenceType] = useState<"daily" | "weekly" | "monthly">("daily")
   const [recurrenceCount, setRecurrenceCount] = useState(1)
+  const [videoUrl, setVideoUrl] = useState("")
+  const [audioUrl, setAudioUrl] = useState("")
+  const [reminders, setReminders] = useState<number[]>([])
   const [isSaving, setIsSaving] = useState(false)
   const { spendEzCoins, balance } = useEzCoin()
   const { toast } = useToast()
@@ -43,6 +46,29 @@ export function CreatePlannerEventModal({ visible, onClose, onEventAdded }: Crea
     setIsRecurring(false)
     setRecurrenceType("daily")
     setRecurrenceCount(1)
+    setVideoUrl("")
+    setAudioUrl("")
+    setReminders([])
+  }
+
+  const handleReminderChange = (minutes: number, checked: boolean) => {
+    setReminders((prev) => (checked ? [...prev, minutes].sort((a, b) => a - b) : prev.filter((m) => m !== minutes)))
+  }
+
+  const simulateAudioRecording = () => {
+    toast({
+      title: "Recording Audio...",
+      description: "Simulating voice reminder recording. This would capture actual audio.",
+    })
+    setIsSaving(true) // Temporarily use saving state for simulation
+    setTimeout(() => {
+      setAudioUrl("/placeholder.svg?height=50&width=50") // Placeholder for audio
+      toast({
+        title: "Audio Recorded!",
+        description: "Voice reminder simulated and attached.",
+      })
+      setIsSaving(false)
+    }, 2000)
   }
 
   const calculateCost = () => {
@@ -119,6 +145,9 @@ export function CreatePlannerEventModal({ visible, onClose, onEventAdded }: Crea
           isRecurring,
           recurrenceType: isRecurring ? recurrenceType : undefined,
           recurrenceCount: isRecurring ? recurrenceCount : undefined,
+          videoUrl: videoUrl.trim() || undefined,
+          audioUrl: audioUrl.trim() || undefined,
+          reminders: reminders.length > 0 ? reminders : undefined,
         }
 
         onEventAdded(newEvent)
@@ -176,6 +205,71 @@ export function CreatePlannerEventModal({ visible, onClose, onEventAdded }: Crea
             <div className="space-y-2">
               <Label htmlFor="event-time">Time</Label>
               <Input id="event-time" type="time" value={time} onChange={(e) => setTime(e.target.value)} />
+            </div>
+          </div>
+
+          {/* Video Attachment */}
+          <div className="space-y-2">
+            <Label htmlFor="video-url" className="flex items-center gap-2">
+              <Video className="h-4 w-4" /> Video Attachment (URL)
+            </Label>
+            <Input
+              id="video-url"
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+              placeholder="Paste video URL (e.g., YouTube, Vimeo)"
+            />
+          </div>
+
+          {/* Audio Attachment */}
+          <div className="space-y-2">
+            <Label htmlFor="audio-url" className="flex items-center gap-2">
+              <Mic className="h-4 w-4" /> Audio Attachment
+            </Label>
+            <div className="flex gap-2">
+              <Input
+                id="audio-url"
+                value={audioUrl}
+                onChange={(e) => setAudioUrl(e.target.value)}
+                placeholder="Paste audio URL or record"
+                disabled={isSaving}
+              />
+              <Button onClick={simulateAudioRecording} disabled={isSaving} variant="outline" size="icon">
+                {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Mic className="h-4 w-4" />}
+              </Button>
+            </div>
+          </div>
+
+          {/* Reminders */}
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <Bell className="h-4 w-4" /> Reminders
+            </Label>
+            <div className="flex flex-wrap gap-2">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="reminder-5min"
+                  checked={reminders.includes(5)}
+                  onCheckedChange={(checked) => handleReminderChange(5, checked)}
+                />
+                <Label htmlFor="reminder-5min">5 min before</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="reminder-30min"
+                  checked={reminders.includes(30)}
+                  onCheckedChange={(checked) => handleReminderChange(30, checked)}
+                />
+                <Label htmlFor="reminder-30min">30 min before</Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="reminder-1hour"
+                  checked={reminders.includes(60)}
+                  onCheckedChange={(checked) => handleReminderChange(60, checked)}
+                />
+                <Label htmlFor="reminder-1hour">1 hour before</Label>
+              </div>
             </div>
           </div>
 

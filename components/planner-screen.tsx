@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { useState, useEffect, useMemo } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { CalendarDays, Plus, Gem, Sparkles, Loader2 } from "lucide-react"
+import { CalendarDays, Plus, Gem, Sparkles, Loader2, Video, Mic, Bell, Download } from "lucide-react"
 import { CreatePlannerEventModal } from "@/components/create-planner-event-modal"
 import type { Post, PlannerEvent } from "@/lib/types"
 import { format, isSameDay, isSameWeek, isSameMonth, addDays, addWeeks, addMonths } from "date-fns"
@@ -168,6 +168,59 @@ export function PlannerScreen({ posts }: PlannerScreenProps) {
     }
   }
 
+  const exportEvents = (formatType: "json" | "csv") => {
+    const data = events.map((event) => ({
+      id: event.id,
+      title: event.title,
+      description: event.description || "",
+      date: event.date.toISOString(),
+      isPermanent: event.isPermanent,
+      ipfsHash: event.ipfsHash || "",
+      nftTokenId: event.nftTokenId || "",
+      isRecurring: event.isRecurring,
+      recurrenceType: event.recurrenceType || "",
+      recurrenceCount: event.recurrenceCount || 0,
+      videoUrl: event.videoUrl || "",
+      audioUrl: event.audioUrl || "",
+      reminders: event.reminders ? event.reminders.join(",") : "",
+    }))
+
+    let fileContent: string
+    let fileName: string
+    let mimeType: string
+
+    if (formatType === "json") {
+      fileContent = JSON.stringify(data, null, 2)
+      fileName = "eznote_planner_events.json"
+      mimeType = "application/json"
+    } else {
+      const headers = Object.keys(data[0] || {}).join(",")
+      const rows = data.map((row) =>
+        Object.values(row)
+          .map((value) => `"${value}"`)
+          .join(","),
+      )
+      fileContent = [headers, ...rows].join("\n")
+      fileName = "eznote_planner_events.csv"
+      mimeType = "text/csv"
+    }
+
+    const blob = new Blob([fileContent], { type: mimeType })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement("a")
+    a.href = url
+    a.download = fileName
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+
+    toast({
+      title: "Events Exported!",
+      description: `Your planner events have been exported as ${formatType.toUpperCase()}.`,
+    })
+  }
+
   return (
     <div className="max-w-2xl mx-auto">
       {/* Header */}
@@ -176,6 +229,16 @@ export function PlannerScreen({ posts }: PlannerScreenProps) {
           <div className="flex items-center">
             <CalendarDays className="h-8 w-8 text-purple-600 mr-2" />
             <h1 className="text-2xl font-bold">Planner</h1>
+          </div>
+          <div className="flex gap-2">
+            <Button variant="outline" size="sm" onClick={() => exportEvents("json")}>
+              <Download className="h-4 w-4 mr-2" />
+              JSON
+            </Button>
+            <Button variant="outline" size="sm" onClick={() => exportEvents("csv")}>
+              <Download className="h-4 w-4 mr-2" />
+              CSV
+            </Button>
           </div>
         </div>
 
@@ -281,6 +344,23 @@ export function PlannerScreen({ posts }: PlannerScreenProps) {
                   </div>
                   <p className="text-sm text-muted-foreground mb-2">{format(event.date, "MMM d, yyyy 'at' h:mm a")}</p>
                   {event.description && <p className="text-sm">{event.description}</p>}
+                  <div className="flex items-center gap-2 mt-2">
+                    {event.videoUrl && (
+                      <Badge variant="outline" className="flex items-center gap-1">
+                        <Video className="h-3 w-3" /> Video
+                      </Badge>
+                    )}
+                    {event.audioUrl && (
+                      <Badge variant="outline" className="flex items-center gap-1">
+                        <Mic className="h-3 w-3" /> Audio
+                      </Badge>
+                    )}
+                    {event.reminders && event.reminders.length > 0 && (
+                      <Badge variant="outline" className="flex items-center gap-1">
+                        <Bell className="h-3 w-3" /> Reminders
+                      </Badge>
+                    )}
+                  </div>
                   {event.isPermanent && event.ipfsHash && (
                     <div className="mt-2 p-2 bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 rounded-lg">
                       <p className="text-xs text-purple-700 dark:text-purple-300 flex items-center">

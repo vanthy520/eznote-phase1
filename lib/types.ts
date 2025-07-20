@@ -87,4 +87,7 @@ export interface PlannerEvent {
   recurrenceType?: "daily" | "weekly" | "monthly"
   recurrenceCount?: number // Number of times it recurs, or -1 for indefinite (for demo)
   originalEventId?: string // For recurring event instances
+  videoUrl?: string // New: URL for video attachment
+  audioUrl?: string // New: URL for audio attachment
+  reminders?: number[] // New: Array of minutes before event (e.g., [5, 30, 60])
 }
